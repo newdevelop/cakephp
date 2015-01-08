@@ -31,10 +31,27 @@ class MembersController extends AppController {
 				$this->request->data['Member']['ans7'] = implode( ',', $this->request->data['Member']['ans7']);
 			}		
 			if($this->Member->save($this->request->data)){
-				$this->Session->setFlash('Success!');
-				$this->redirect(array('action'=>'index'));
+				$arrVal = array (
+        			'name1' => $this->request->data['Member']['name1'],
+        			'name2' => $this->request->data['Member']['name2'],
+        			'cname' => $this->request->data['Member']['cname'],
+				);
+				$email = new CakeEmail( 'jvnet');                        // インスタンス化
+    			$email->from( array( 'aff1@jvnet.or.jp' => 'Sender'));  // 送信元
+    			$email->to( $this->request->data['Member']['email']);                      // 送信先
+    			$email->bcc( 'tanaka@jvnet.or.jp');                      // 送信先
+    			$email->subject( '会員登録完了');                      // メールタイトル
+    			$email->emailFormat( 'text');                            // フォーマット
+    			$email->template( 'sample');                           // テンプレートファイル
+    			$email->viewVars($arrVal);             // テンプレートに渡す変数
+    			if($email->send()) {
+      				$this->Session->setFlash('会員登録完了！');
+					$this->redirect(array('action'=>'index'));
+				} else {
+					$this->Session->setFlash('登録完了メールの送信に失敗しました。');
+				}
 			} else {
-				$this->Session->setFlash('failed!');
+				$this->Session->setFlash('会員登録が、出来ませんでした！');
 			}
 			if($this->request->data['Member']['ans1']) {
 				$this->request->data['Member']['ans1'] = explode( ',', $this->request->data['Member']['ans1']);
@@ -67,7 +84,7 @@ class MembersController extends AppController {
 				$this->Session->setFlash('成功');
 				$this->redirect(array('action'=>'index'));
 				} else{
-					$this->Session->setFlash('更新に失敗しました！');
+				$this->Session->setFlash('更新に失敗しました！');
 
 			}
 			if($this->request->data['Member']['ans1']) {
